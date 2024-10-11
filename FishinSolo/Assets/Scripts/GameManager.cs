@@ -9,11 +9,14 @@ public class GameManager : MonoBehaviour
 
     //RESOURCES USED
     // <shttps://www.youtube.com/watch?v=C5bnWShD6ng
-    // Turn based code- Zenva academy
 
-    //VARIABLES
+//----------THIS SCRIPT IS FOR TURN SEQUENCE, DRAWING CARDS, AND EVENTS----
+
+    //-----------------INITIAL VARIABLES---------------------------
     public static GameManager instance;
-
+    public static PlayerController playerController;
+    public Card card;
+    //-----------------VARIABLES FOR GAME OBJECTS-------------------
     public List<Deck> decks = new List<Deck>();
 
     public Transform[] cardSlots;
@@ -21,17 +24,23 @@ public class GameManager : MonoBehaviour
 
     public int handIndex = 0; //Cards in hand
 
+    //----------------VARIABLES FOR PLAYER UI----------------------
     public TextMeshProUGUI deckSizeText;
     public TextMeshProUGUI discardPileText;
 
+    //-----------------VARIABLES FOR TURNS-----------------------
     public TextMeshProUGUI tackleBoxText;
-
     public TextMeshProUGUI trophyPointsText;
+    private bool isPlayerTurn = true;
 
-    
-    public static PlayerController playerController;
-    public Card card;
 
+
+
+//***************************  FUNCTIONS *************************
+
+
+
+//-------------------ON GAME START---------------------
     void Awake()
     {
         instance = this;
@@ -47,6 +56,8 @@ public class GameManager : MonoBehaviour
         if (playerController != null)
         {
             PlayerController.me = playerController;
+            StartTurn(); //Lets the player take first turn
+            Debug.Log("FIRST TURN");
         }
         else
         {
@@ -54,9 +65,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
+//-----------------STARTS TURN-------------------------
+    public bool IsPlayerTurn()
+    {
+        return isPlayerTurn;  // Basically checks if player can draw.
+    }
+
+    
+    
+    public void StartTurn()
+    {
+        isPlayerTurn = true;
+        Debug.Log("Player's turn started. Click the draw button to draw a card.");
+        // Player can click the button to manually draw a card when ready
+    }
+
+//---------------DRAWING ACTION-----------------------------
     public void DrawFromSpecificDeck(int deckIndex)
     {
-        DrawCard(deckIndex);
+        if(isPlayerTurn == true){//If allowed to draw
+            DrawCard(deckIndex);
+            isPlayerTurn = false; //Doesn't let the player draw again
+        }
+        else{
+            Debug.Log("Error! Not time to draw yet!");
+        }
     }
 
     public void DrawCard(int deckIndex)
@@ -85,6 +118,7 @@ public class GameManager : MonoBehaviour
 
                     if(playerController.baitCount < baitCost){
                         Debug.Log("Not enough Bait :( ");
+                        return;
                     }
 
                     randCard.gameObject.SetActive(true);
@@ -101,9 +135,6 @@ public class GameManager : MonoBehaviour
                     selectedDeck.cards.Remove(randCard); // Remove from the deck
                                     // Don't add to discard pile yet
 
-                    // Add the card to the discard pile (Update this to fit your discard logic)
-                    //selectedDeck.discardPile.Add(randCard);
-
                     // Update bait count
                     playerController.baitCount -= baitCost;
                     UpdateBaitUI(playerController.baitCount);
@@ -117,6 +148,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+//---------------------DISCARD CALLED IN CARD CLASS----------------------------
+//----------------------EVENT ACTION--------------------------------------------
+//NEEDS WORK
+    public void TriggerEvent()
+    {
+        Debug.Log("Trigger Event");
+
+    }
+
+//-------------------------UPDATE Ui-----------------------------------------
     public void UpdateDeckUI()
     {
         for (int i = 0; i < decks.Count; i++)
@@ -142,15 +183,26 @@ public class GameManager : MonoBehaviour
         UpdateBaitUI(playerController.baitCount);
     }
 
+    
+    //Needs update Vertical Slice
     public int GetBaitCost(int deckIndex)
     {
-        // Example of determining bait cost based on deck
         if (deckIndex == 0) return 1; // Deck 1 costs 1 bait
         if (deckIndex == 1) return 2; // Deck 2 costs 2 bait
         if (deckIndex == 2) return 3; // Deck 3 costs 3 bait
         return 0; // Default cost
     }
 
+//------------------------END AND RESET-------------------
+
+    public void EndTurn()
+    {
+        isPlayerTurn = false;  // Set the turn flag to false when ending the turn
+        Debug.Log("Turn Over, starting new turn");
+        StartTurn();
+    }
+
+//RESET NEVER CALLED-- Make sure to check this in Prod 4
     public void ResetGame()
     {
         foreach (var deck in decks)

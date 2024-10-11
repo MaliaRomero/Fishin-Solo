@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //--------THIS SCRIPT HANDLES UI AND BAIT/TROPHY COUNTERS--------
     public static PlayerController me;
 
     public int baitCount = 3;
@@ -36,11 +37,6 @@ public class PlayerController : MonoBehaviour
         UpdateBaitUI();
     }
 
-    public void BeginTurn()
-    {
-        UpdateBaitUI();
-    }
-
     public void UpdateBaitUI()
     {
         GameManager.instance.tackleBoxText.text = "Bait: " + baitCount.ToString();
@@ -57,24 +53,5 @@ public class PlayerController : MonoBehaviour
         if (deckIndex == 1) return 2; // Deck 2 costs 2 bait
         if (deckIndex == 2) return 3;
         return 0; // Default cost
-    }
-
-    public void DrawCard(int deckIndex)
-    {
-        //int baitCost = GetBaitCost(deckIndex);
-        int baitCost = GameManager.instance.GetBaitCost(deckIndex);
-
-        if (baitCount >= baitCost)
-        {
-            baitCount -= baitCost;
-
-            GameManager.instance.DrawCard(deckIndex);  // Calls GameManager to handle the actual draw
-        }
-        else
-        {
-            Debug.LogError("Not enough bait to draw from this deck!");
-        }
-
-        UpdateBaitUI();  // Update the bait in the UI after drawing
     }
 }

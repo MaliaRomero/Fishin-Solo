@@ -9,17 +9,13 @@ public class Card : MonoBehaviour
     private GameManager gm;
     private Deck currentDeck;
     public Deck originDeck;  // Add a reference to the deck this card belongs to for discard
-//---------------------------------//
-//New Game Loop
+//---------------------------------
 
     public int pointValue;  // The point value of this card
     public int baitValue;   // The bait value of this card when discarded
 
     private void Start()
-    {/*
-        gm = FindObjectOfType<GameManager>();
-
-        gm.playerController.AddPoints(pointValue);//Add when enter hand*/
+    {
         gm = GameManager.instance;  // Access the GameManager instance
 
         // Add points when the card enters the hand
@@ -40,6 +36,11 @@ public class Card : MonoBehaviour
             GameManager.playerController.AddBait(baitValue);        // Increase bait value as the card is discarded
             
             MoveToDiscardPile();
+
+            // Trigger an event in GameManager and end the turn
+            //ADD SKIP DISCARD
+            GameManager.instance.TriggerEvent();
+            GameManager.instance.EndTurn();
             
         }
     }
